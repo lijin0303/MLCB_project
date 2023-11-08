@@ -1,0 +1,9 @@
+#!/bin/bash
+#SBATCH -n 8
+#SBATCH -N 1
+#SBATCH -o preprocess_%j.o
+#SBATCH -e preprocess_%j.o
+#SBATCH --mail-type=BEGIN,END
+#SBATCH --mail-user=meganlecs@gmail.com
+
+python /home/meganle/software/Monopogen/src/Monopogen.py preProcess -b bam.lst -o ./ -a /home/meganle/software/Monopogen/apps -t 8
