@@ -8,4 +8,4 @@
 #SBATCH --mail-type=BEGIN,END
 #SBATCH --mail-user=meganlecs@gmail.com
 
-samtools index /pool001/meganle/SNU601_scATAC.possorted_bam.bam.1 /pool001/meganle/SNU601_scATAC.possorted_bam.bam.bai
+samtools index /pool001/meganle/SNU601_scATAC.bam /pool001/meganle/SNU601_scATAC.bam.bai

@@ -2,7 +2,7 @@
 
 ## Preparation Steps (only needs to be run once)
 
-1. `get_all_imputation.sh`: downloads imputation panel from https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_phased/
+1. `data/get_all_imputation.sh`: downloads imputation panel from https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_phased/
 
 ## Analysis (run for each dataset)
 

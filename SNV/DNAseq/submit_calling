@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH -n 8
+#SBATCH -N 1
+#SBATCH -p sched_any
+#SBATCH -t 0-12:00:00
+#SBATCH -o dna_calling3_%j.o
+#SBATCH -e dna_calling3_%j.o
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=meganlecs@gmail.com
+
+python /home/meganle/software/Monopogen/src/Monopogen.py germline -r /home/meganle/analysis/MLCB_project/SNV/data/GRCh38.region3.lst -o /pool001/meganle/DNAseq_results -a /home/meganle/software/Monopogen/apps -t 8 -s all -g /pool001/meganle/hs38.fa -p /pool001/dschaffe/variant-calling/
