@@ -8,4 +8,4 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=meganlecs@gmail.com
 
-python /home/meganle/software/Monopogen/src/Monopogen.py germline -r /home/meganle/analysis/MLCB_project/SNV/data/chr_regions/GRCh38.chr{$1}.region.lst -o /pool001/meganle/DNAseq_results -a /home/meganle/software/Monopogen/apps -t 16 -s all -g /pool001/meganle/hs38.fa -p /pool001/dschaffe/variant-calling/
+python /home/meganle/software/Monopogen/src/Monopogen.py germline -r /home/meganle/analysis/MLCB_project/SNV/data/chr_regions/GRCh38.chr$1.region.lst -o /pool001/meganle/DNAseq_results -a /home/meganle/software/Monopogen/apps -t 16 -s all -g /pool001/meganle/hs38.fa -p /pool001/dschaffe/variant-calling/
