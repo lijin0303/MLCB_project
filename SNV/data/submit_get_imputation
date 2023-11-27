@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#SBATCH -n 1
+#SBATCH -N 1
+#SBATCH -p sched_any
+#SBATCH -t 0-12:00:00
+#SBATCH -o download_impute_%j.o
+#SBATCH -e download_impute_%j.o
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=meganlecs@gmail.com
+
+wget https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_phased/CCDG_14151_B01_GRM_WGS_2020-08-05_chr${1}.filtered.shapeit2-duohmm-phased.vcf.gz -P /pool001/meganle/imputation_panel
+
