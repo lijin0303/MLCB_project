@@ -9,7 +9,7 @@ import fileinput
 import numpy as np
 import sys
 
-CIGAR_COVERED_OPS = ['M']
+MAX_MISMATCH = 3
 
 def is_covered(start_pos, cigar, check_pos):
     """ Checks whether aligned read covers a given position
@@ -21,6 +21,8 @@ def is_covered(start_pos, cigar, check_pos):
     Returns:
         True if check_pos covered, False if not
     """
+    if cigar == '*':
+        return False
     # keeps track of the beginning of the previous number
     num_start = 0
     i = 0
@@ -42,14 +44,15 @@ def is_covered(start_pos, cigar, check_pos):
             start_pos += num_bases
             num_start = i + 1
             
-        elif char == 'I' or char == 'S':
-            # insertion or soft clipping, so go to next subregion
+        elif char == 'I' or char == 'S' or char == 'H':
+            # insertion or clipping, so go to next subregion
             num_start = i + 1
         else:
-            assert char.isdigit()
+            if not char.isdigit():
+                print(cigar)
+                assert 0
         i += 1
     return False
-
 
 in_snv = open("snv_list.txt", 'r')
 in_cells = open("cells_list.txt", 'r')
@@ -81,18 +84,25 @@ snv_split = snv_arr[0].split(':')
 curr_chr = snv_split[0]
 curr_pos = int(snv_split[1])
 
+prog = 0
 ### iterate over .bam file
 with fileinput.input() as f_input:
     for line in f_input:
+        if prog % 1000000 == 0:
+            print(prog)
         line_split = line.split()
 
         # skip line if not 50 bases before SNV of interest
         pos_diff = curr_pos - int(line_split[3])
         if (curr_chr == line_split[2] and (pos_diff >= 0 and pos_diff < 50)):
-            if is_covered(int(line_split[3]), line_split[5], curr_pos):
-                barcode = line_split[18].split(':')[2]
-                if barcode in cell_dict:
-                    cov_mat[cell_dict[barcode]][snv_idx] += 1
+            # check for mismatch filter
+            # (Monopogen's default is 3, but their code checks for less than 3 ...)
+            NM_field = line_split[11].split(':')
+            if NM_field[0] == 'NM' and int(NM_field[2]) < MAX_MISMATCH:
+                if is_covered(int(line_split[3]), line_split[5], curr_pos):
+                    barcode = line_split[18].split(':')[2]
+                    if barcode in cell_dict:
+                        cov_mat[cell_dict[barcode]][snv_idx] += 1
         else:
             # check if we need to go to the next SNV 
             # i.e., if on a new chromosome or position is past SNV
@@ -101,6 +111,7 @@ with fileinput.input() as f_input:
                 snv_split = snv_arr[snv_idx].split(':')
                 curr_chr = snv_split[0]
                 curr_pos = int(snv_split[1])
+        prog += 1
 
 ### save matrix to file
 np.savetxt("cxm_cov_mat.txt", cov_mat, delimiter=' ')
