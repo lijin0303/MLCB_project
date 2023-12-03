@@ -34,11 +34,29 @@ in_cells.close()
 
 cov_mat = np.zeros((len(cell_dict), len(snv_arr)))
 
+snv_idx = 0
+snv_split = snv_arr[0].split(':')
+curr_chr = snv_split[0]
+curr_pos = int(snv_split[1])
+
+### iterate over .bam file
 with fileinput.input() as f_input:
-    # make two passes, one for dimensions and another 
     for line in f_input:
         line_split = line.split()
 
-        curr_var = line_split[2] + ':' + line_split[3] + ':'
-        print(line, end='')
+        # skip line if not 50 bases before SNV of interest
+        pos_diff = curr_pos - int(line_split[3])
+        if (curr_chr == line_split[2] and (pos_diff >= 0 and pos_diff < 50)):
+            # TODO: implement CIGAR parser
+            continue
+        else:
+            # check if we need to go to the next SNV 
+            # i.e., if on a new chromosome or position is past SNV
+            if curr_chr != line_split[2] or pos_diff < 0:
+                snv_idx += 1
+                snv_split = snv_arr[snv_idx].split(':')
+                curr_chr = snv_split[0]
+                curr_pos = int(snv_split[1])
 
+### save matrix to file
+np.savetxt("cxm_cov_mat.txt", cov_mat, delimiter=' ')
