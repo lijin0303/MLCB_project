@@ -9,6 +9,48 @@ import fileinput
 import numpy as np
 import sys
 
+CIGAR_COVERED_OPS = ['M']
+
+def is_covered(start_pos, cigar, check_pos):
+    """ Checks whether aligned read covers a given position
+    Args:
+        start_pos: position at the beginning of the read
+        cigar: CIGAR string corresponding to alignment
+        check_pos: position to check against alignment
+
+    Returns:
+        True if check_pos covered, False if not
+    """
+    # keeps track of the beginning of the previous number
+    num_start = 0
+    i = 0
+    while(i < len(cigar)):
+        char = cigar[i]
+        if char == 'M':
+            # alignment match, so see if check_pos in subregion
+            num_bases = int(cigar[num_start:i])
+
+            if check_pos < (start_pos + num_bases):
+                return True
+
+            start_pos += num_bases
+            num_start = i + 1
+        elif char == 'D':
+            # deletion, so move starting position forward
+            num_bases = int(cigar[num_start:i])
+
+            start_pos += num_bases
+            num_start = i + 1
+            
+        elif char == 'I' or char == 'S':
+            # insertion or soft clipping, so go to next subregion
+            num_start = i + 1
+        else:
+            assert char.isdigit()
+        i += 1
+    return False
+
+
 in_snv = open("snv_list.txt", 'r')
 in_cells = open("cells_list.txt", 'r')
 
@@ -47,8 +89,10 @@ with fileinput.input() as f_input:
         # skip line if not 50 bases before SNV of interest
         pos_diff = curr_pos - int(line_split[3])
         if (curr_chr == line_split[2] and (pos_diff >= 0 and pos_diff < 50)):
-            # TODO: implement CIGAR parser
-            continue
+            if is_covered(int(line_split[3]), line_split[5], curr_pos):
+                barcode = line_split[18].split(':')[2]
+                if barcode in cell_dict:
+                    cov_mat[cell_dict[barcode]][snv_idx] += 1
         else:
             # check if we need to go to the next SNV 
             # i.e., if on a new chromosome or position is past SNV
