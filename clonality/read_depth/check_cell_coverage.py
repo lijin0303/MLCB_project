@@ -108,10 +108,12 @@ with fileinput.input() as f_input:
             # i.e., if on a new chromosome or position is past SNV
             if curr_chr != line_split[2] or pos_diff < 0:
                 snv_idx += 1
+                if snv_idx >= len(snv_arr):
+                    break
                 snv_split = snv_arr[snv_idx].split(':')
                 curr_chr = snv_split[0]
                 curr_pos = int(snv_split[1])
         prog += 1
 
 ### save matrix to file
-np.savetxt("cxm_cov_mat.txt", cov_mat, delimiter=' ')
+np.savetxt("cxm_cov_mat.txt", cov_mat.astype(int), fmt='%i', delimiter=' ')
